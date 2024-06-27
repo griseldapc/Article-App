@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import DataTable from 'react-data-table-component';
 import Sidebar from '@/app/sidebar/page';
 import '../../../styles/globals.css';
 
@@ -63,13 +64,12 @@ export default function AdminPage() {
         last_name: updatedUserData.last_name,
       };
 
-      // Update fullName in updatedUser
       updatedUser.fullName = `${updatedUser.first_name} ${updatedUser.last_name}`;
 
       const updatedUsers = users.map(user => (user.id === selectedUser.id ? updatedUser : user));
       
       setUsers(updatedUsers);
-      setSelectedUser(updatedUser); // Update selectedUser in state
+      setSelectedUser(updatedUser);
       setIsEditModalOpen(false);
     } catch (error) {
       console.error('Error saving changes:', error);
@@ -95,35 +95,56 @@ export default function AdminPage() {
     }
   };
 
+  const columns = [
+    {
+      name: <span style={{ fontSize: '16px' }}>No</span>,
+      selector: (row, index) => index + 1,
+      sortable: true,
+      maxWidth: '50px',
+    },
+    {
+      name: <span style={{ fontSize: '16px' }}>Full Name</span>,
+      selector: row => row.fullName,
+      sortable: true,
+    },
+    {
+      name: <span style={{ fontSize: '16px' }}>Action</span>,
+      cell: row => (
+        <div className="flex space-x-2">
+          <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={() => handleEditClick(row)}>Edit</button>
+          <button className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onClick={() => handleDeleteClick(row.id)}>Delete</button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className='flex'>
       <Sidebar />
-      <div className='p-9 items-center flex flex-col'>
-        <h1 className='text-3xl pb-16'>Admin Dashboard</h1>
-        <div className="overflow-x-auto items-center">
-          <table id="myTable" className='table-auto min-w-full border-collapse border border-gray-300'>
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="border border-gray-300 px-4 py-2">No</th>
-                <th className="border border-gray-300 px-4 py-2">Full Name</th>
-                <th className="border border-gray-300 px-4 py-2">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user, index) => (
-                <tr key={user.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-100'}>
-                  <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
-                  <td className="border border-gray-300 px-4 py-2">{user.fullName}</td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={() => handleEditClick(user)}>Edit</button>
-                    <button className="bg-red-500 text-white px-4 py-2 rounded ml-2 hover:bg-red-600" onClick={() => handleDeleteClick(user.id)}>Delete</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <div className='p-9 items-center flex flex-col w-[100%]'>
+        <h1 className='text-3xl pb-16 font-bold'>Admin Dashboard</h1>
+        <div className="w-full">
+          <DataTable
+            columns={columns}
+            data={users}
+            pagination
+            highlightOnHover
+            customStyles={{
+              headCells: {
+                style: {
+                  'justify-content': 'center',
+                  'font-weight': 'bold',
+                },
+              },
+              cells: {
+                style: {
+                  'justify-content': 'center',
+                },
+              },
+            }}
+          />
         </div>
-  
+
         {isEditModalOpen && selectedUser && (
           <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-8 max-w-md w-full">
@@ -148,8 +169,4 @@ export default function AdminPage() {
       </div>
     </div>
   );
-  
 }
-
-
-

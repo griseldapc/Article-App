@@ -1,15 +1,12 @@
 "use client";
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import DataTable from 'react-data-table-component';
 import Sidebar from '@/app/sidebar/page';
-import Modal from 'react-modal';
 import '../../../styles/globals.css';
-
 
 const AdminArticlePage = () => {
     const [articles, setArticles] = useState([]);
-    const [selectedArticle, setSelectedArticle] = useState(null);
-    const [modalIsOpen, setModalIsOpen] = useState(false);
 
     useEffect(() => {
         const fetchArticles = async () => {
@@ -39,55 +36,71 @@ const AdminArticlePage = () => {
         fetchArticles();
     }, []);
 
-    const openModal = (article) => {
-        setSelectedArticle(article);
-        setModalIsOpen(true);
+    const handleEdit = (article) => {
+        console.log("Edit article:", article);
     };
 
-    const closeModal = () => {
-        setSelectedArticle(null);
-        setModalIsOpen(false);
+    const handleDelete = (article) => {
+        console.log("Delete article:", article);
     };
+
+    const columns = [
+        {
+            name: <span style={{ fontSize: '16px' }}>Title Article</span>,
+            selector: row => row.title,
+            sortable: true,
+            cell: row => (
+                <div className="flex-1 text-left text-sm">
+                    {row.title}
+                </div>
+            ),
+        },
+        {
+            name: <span style={{ fontSize: '16px' }}>Actions</span>,
+            cell: row => (
+                <div className="flex justify-end w-[300px]">
+                    <button
+                        className="px-2 py-1 mr-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none w-[50px] h-[30px] my-1 text-xs"
+                        onClick={() => handleEdit(row)}
+                    >
+                        Edit
+                    </button>
+                    <button
+                        className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none text-xs w-[60px] my-1"
+                        onClick={() => handleDelete(row)}
+                    >
+                        Delete
+                    </button>
+                </div>
+            ),
+            ignoreRowClick: true,
+            allowOverflow: true,
+            button: true,
+        },
+    ];
 
     return (
         <div className='flex h-screen'>
             <Sidebar />
             <div className='p-9 flex-grow overflow-y-auto'>
-                <h1 className='text-3xl text-center pb-10'>Admin Dashboard</h1>
-                <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'>
-                    {Array.isArray(articles) && articles.map((article, index) => (
-                        <div key={index}>
-                            <div className='border border-black p-4 rounded-md text-sm text-black cursor-pointer mt-6'
-                                onClick={() => openModal(article)}>
-                                <p>{article.description.length > 100 ? `${article.description.slice(0, 100)}...` : article.description}</p>
-                            </div>
-                            <p className='text-blue-500 text-center text-sm mt-4'>{article.title}</p>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Modal to display full article */}
-                <Modal
-                    isOpen={modalIsOpen}
-                    onRequestClose={closeModal}
-                    contentLabel="Selected Article"
-                    className="Modal"
-                    overlayClassName="Overlay"
-                >
-                    <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 max-w-xl mx-auto rounded-md shadow-lg overflow-y-auto h-[70vh] w-[150rem]">
-                        <h2 className="text-xl font-bold mb-4 text-black">Judul Artikel: {selectedArticle?.title}</h2>
-                        <p className="text-sm text-black">{selectedArticle?.description}</p>
-                        <div className="mt-4 flex justify-end">
-                            <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none" onClick={closeModal}>Close</button>
-                        </div>
-                    </div>
-
-                </Modal>
-
+                <h1 className='text-3xl text-center pb-10 font-bold'>Admin Dashboard</h1>
+                <DataTable
+                    columns={columns}
+                    data={articles}
+                    pagination
+                    highlightOnHover
+                    customStyles={{
+                        rows: {
+                            style: 'flex justify-between items-center',
+                        },
+                        headCells: {
+                            style: 'flex justify-between items-center',
+                        },
+                    }}
+                />
             </div>
         </div>
     );
 }
 
 export default AdminArticlePage;
-

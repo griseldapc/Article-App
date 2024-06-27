@@ -32,10 +32,8 @@ const LoginPage = () => {
   
       localStorage.setItem("token", data.access);
   
-      // Mendapatkan informasi peran dari respons
-      const role = data.role; // Misalnya, data.role merupakan informasi peran dari respons server
+      const role = data.role;
   
-      // Redirect berdasarkan peran
       if (role === "owner") {
         window.location.href = "/owner/profile";
       } else {
@@ -87,6 +85,5 @@ const LoginPage = () => {
 }
 
 export default LoginPage;
-
 
 
